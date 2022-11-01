@@ -1,31 +1,50 @@
 import { useState } from "react"
 import axios from "axios"
-import th.jpg from "../public/th.jpg"
+//import th.jpg from "../public/th.jpg"
 
 const Menu = () => {
 
     const [categoria, setCategoria] = useState("people");
     const [id, setId] = useState ("")
     const [respuesta, setRespuesta] = useState({})
+    const [categoriaUrl, setCategoriaUrl] = useState("people");
     
 
     const buscar = (e) => {
         e.preventDefault ();
-        console.log(categoria, id);
+        console.log(categoriaUrl, id);
 
         let url = "https://swapi.dev/api/";
-        url += categoria + "/" + id;
+        url += categoriaUrl + "/" + id;
         console.log(url)
 
         axios.get(url)
         .then(result => result.data)
         .then(response => {
             console.log(response);
-            setRespuesta(response)
+            console.log(categoriaUrl);
+            if (categoriaUrl == "people") {
+                axios.get(response.homeworld)
+                .then(result => result.data)
+                .then(response1 => {
+                    console.log(response1);
+                    response.homeworld = response1.name;
+                    console.log(response)
+                    setRespuesta(response);
+                    setCategoria(categoriaUrl);
+                })
+            }
+            else {
+                setRespuesta(response);
+                setCategoria(categoriaUrl);
+            }
+            
         })
-        .catch(error => 
-            return ("Estos no son los droides que está buscando", <img src="../public/th.jpg" alt="" className="img-fluid"/>, error)
-            )
+        .catch(err => {
+            console.log("Hubo un error" + err)
+            console.log(respuesta);
+            setRespuesta("error");
+        }); 
     }
 
     return (
@@ -36,7 +55,7 @@ const Menu = () => {
                     <div className="form-group row col-sm-6" >
                         <label for="recurso" className="col-sm-3 col-form-label"><b>Search For</b></label>
                         <div>
-                            <select className="form-control form-select" value={categoria} onChange={(e)=> setCategoria(e.target.value)} name="recurso" id="recurso">
+                            <select className="form-control form-select" value={categoriaUrl} onChange={(e)=> setCategoriaUrl(e.target.value)} name="recurso" id="recurso">
                                 <option value="people">People</option>
                                 <option value="films">Films</option>
                                 <option value="starships">Starships</option>
@@ -57,20 +76,22 @@ const Menu = () => {
                     </div>
                 </div>
             </form>
-            <div>
-            {
-                categoria === "people" ?
+            <div className="container w-100 mx-auto border">
+                {respuesta == "error" ?
+                    <div>
+                        <h1 className="text-danger">404</h1>
+                        <h3 className="text-danger">Estos no son los droides que está buscando!</h3>
+                        <img className="img-fluid" src= "https://as01.epimg.net/meristation/imagenes/2021/11/12/noticias/1636736157_149351_1636736239_noticia_normal.jpg"></img>
+                    </div>
+                : categoria === "people" ?
                     <div>
                         <h1> {respuesta.name}</h1>
                         <p><b>Height:</b> {respuesta.height}</p>
                         <p><b>Mass:</b> {respuesta.mass}</p>
                         <p><b>Hair Color:</b> {respuesta.hair_color}</p>
+                        <p><b>Homeworld:</b> {respuesta.homeworld}</p>
                     </div>
-                :
-                    null
-            }
-            {
-                categoria === "films" ?
+                : categoria === "films" ?
                     <div>
                         <h1>{respuesta.title}</h1>
                         <p><b>Episode Id:</b> {respuesta.episode_id}</p>
@@ -78,11 +99,7 @@ const Menu = () => {
                         <p><b>Director :</b> {respuesta.director}</p>
                         
                     </div>
-                :
-                    null
-            }
-            {
-                categoria === "starships" ?
+                : categoria === "starships" ?
                     <div>
                         <h1>{respuesta.name}</h1>
                         <p><b>Model:</b> {respuesta.model}</p>
@@ -90,11 +107,7 @@ const Menu = () => {
                         <p><b>Cost in credits :</b> {respuesta.cost_in_credits}</p>
                         
                     </div>
-                :
-                    null
-            }
-            {
-                categoria === "vehicles" ?
+                : categoria === "vehicles" ?
                     <div>
                         <h1> {respuesta.name}</h1>
                         <p><b>Model:</b> {respuesta.model}</p>
@@ -102,11 +115,7 @@ const Menu = () => {
                         <p><b>Cost in credits:</b> {respuesta.cost_in_credits}</p>
                         
                     </div>
-                :
-                    null
-            }
-            {
-                categoria === "species" ?
+                : categoria === "species" ?
                     <div>
                         <h1>{respuesta.name}</h1>
                         <p><b>Classification:</b> {respuesta.classification}</p>
@@ -114,11 +123,7 @@ const Menu = () => {
                         <p><b>Average Height:</b> {respuesta.average_height}</p>
                         
                     </div>
-                :
-                    null
-            }
-            {
-                categoria === "planets" ?
+                : categoria === "planets" ?
                     <div>
                         <h1> {respuesta.name}</h1>
                         <p><b>Rotation period:</b> {respuesta.rotation_period}</p>

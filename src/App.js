@@ -1,5 +1,6 @@
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Menu from "./Componentes/ComponenteMenu/ComponenteMenu";
+import ComponentePeople from "./Componentes/ComponentePeople/ComponentePeople";
 
 
 
@@ -10,8 +11,8 @@ const App = () => {
     <BrowserRouter>
       <div className="container">
         <Switch>
-          <Route path="/" render={() => <Menu />} />
-        
+          <Route path="/" exact render={() => <Menu />} />
+          <Route path="/people/:id" exact render={(routerProps) => <ComponentePeople {...routerProps}/>} />
         </Switch>
       </div>
     </BrowserRouter>
